@@ -14,6 +14,6 @@ public class GameManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void setCamera () {
-        cam.setTarget((Instantiate(player, Vector3.zero, Quaternion.identity) as GameObject).transform);
+     //   cam.setTarget((Instantiate(player, Vector3.zero, Quaternion.identity) as GameObject).transform);
 	}
 }

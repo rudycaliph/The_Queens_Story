@@ -7,12 +7,20 @@ public class MegaManController : MonoBehaviour {
     public float maxSpeed = 10f;
     bool facingRight = true;
     float punchForce = 3000;
+    float punchDist = 1.5f;
 
+    Vector3 hitVec;
+    Vector3 playerVec;
+
+    GameObject fistPunch;
     public bool isSwitching = false;
+
+    
+    public EnemyController enemy;
 
     //bool isPrince = true;
 
-    bool grounded = true;
+    public bool grounded = true;
     public Transform groundCheck;
     float groundRadius = 0.2f;
     public LayerMask isThisGround;
@@ -33,6 +41,8 @@ public class MegaManController : MonoBehaviour {
         anim = gameObject.GetComponent<Animator>();
         spriteRenderer = renderer as SpriteRenderer;
         spriteRenderer.color = Color.red;
+       // fistPunch = new GameObject() ;
+        
 	}
 
     void backToNormal()
@@ -42,7 +52,8 @@ public class MegaManController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-        anim.SetBool("isSwitching", true);
+        //anim.SetBool("isSwitching", true);
+        
         if (!isSwitching)
         {
             grounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, isThisGround);
@@ -68,16 +79,14 @@ public class MegaManController : MonoBehaviour {
         
 	}
 
-    //void OnCollisionEnter(Collision collision)
-    //{
-    //    isHit = Physics2D.OverlapCircle(enemyCheck.position, punchRadius, isThisEnemy);
-    //}
+
 
     void Update()
     {
-
+        playerVec = rigidbody2D.transform.position;
         
-
+        if (!isSwitching)
+        {
             if (grounded && Input.GetKeyDown(KeyCode.UpArrow))
             {
                 anim.SetBool("ground", false);
@@ -87,41 +96,74 @@ public class MegaManController : MonoBehaviour {
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
+                StartCoroutine("PunchWait");
                 anim.SetTrigger("punch");
                 //  rigidbody2D.AddForce(new Vector2(punchForce, 0));
                 if (facingRight)
                 {
-                    GameObject fistPunch = (GameObject)Instantiate(GameObject.FindGameObjectWithTag("fist2"),
-                        new Vector3(rigidbody2D.transform.position.x + 1,
+                    fistPunch = (GameObject)Instantiate(GameObject.FindGameObjectWithTag("fist2"),
+                        new Vector3(rigidbody2D.transform.position.x + punchDist,
                             rigidbody2D.transform.position.y),
                             Quaternion.identity);
-                    //fistPunch.rigidbody2D.active = true;
+                    enemy.canBeHit = false;
+                    
+                    
                     fistPunch.tag = "fistPunch";
                 }
                 else
                     if (!facingRight)
                     {
-                        GameObject fistPunch = (GameObject)Instantiate(GameObject.FindGameObjectWithTag("fist2"),
-                        new Vector3(rigidbody2D.transform.position.x - 1,
+                        fistPunch = (GameObject)Instantiate(GameObject.FindGameObjectWithTag("fist2"),
+                        new Vector3(rigidbody2D.transform.position.x - punchDist,
                             rigidbody2D.transform.position.y),
                             Quaternion.identity);
+                        enemy.canBeHit = false;
                         fistPunch.tag = "fistPunch";
                     }
+                
             }
 
             if (Input.GetKeyUp(KeyCode.Space))
             {
-                GameObject[] fist = GameObject.FindGameObjectsWithTag("fistPunch");
-                for (int x = 0; x < fist.Length; x++)
+
+                StartCoroutine("PunchWait");
+                
+            }
+
+            if (fistPunch != null)
+            {
+                if (facingRight)
                 {
-                    Destroy(fist[x]);
+                    playerVec.x += punchDist;
+                    fistPunch.transform.position = playerVec;
+                }
+                if (!facingRight)
+                {
+                    playerVec.x -= punchDist;
+                    fistPunch.transform.position = playerVec;
                 }
             }
-        
+
+        }
     }
 
-    
+    public void beingHitAgain()
+    {
+        enemy.canBeHit = true;
+    }
 
+    IEnumerator PunchWait()
+    {
+        
+        Debug.Log("waiting...");
+        yield return new WaitForSeconds(.55f);
+        GameObject[] fist = GameObject.FindGameObjectsWithTag("fistPunch");
+        for (int x = 0; x < fist.Length; x++)
+        {
+            Destroy(fist[x]);
+        }
+        
+    }
 
     void Flip()
     {
@@ -131,5 +173,16 @@ public class MegaManController : MonoBehaviour {
         theScale.x *= -1;
         transform.localScale = theScale;
         punchForce *= -1;
+    }
+
+
+    void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.tag == "Coin")
+        {
+            Debug.Log("Coin Hit");
+            Destroy(col.gameObject);
+
+        }
     }
 }

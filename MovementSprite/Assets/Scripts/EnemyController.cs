@@ -7,6 +7,10 @@ public class EnemyController : MonoBehaviour {
     int curWalkDist = 0;
     public float speed = 4;
     float health = 200;
+    Vector3 moveEnemy;
+    public bool canBeHit = true;
+
+    public GameObject coin;
 
 	// Use this for initialization
 	void Start () {
@@ -17,6 +21,7 @@ public class EnemyController : MonoBehaviour {
 	void FixedUpdate () {
 
         Vector3 moveEnemy = rigidbody2D.velocity;
+        
 
         moveEnemy.x = speed;
         rigidbody2D.velocity = moveEnemy;
@@ -33,7 +38,10 @@ public class EnemyController : MonoBehaviour {
 
         if (health <= 0)
         {
+           // Instantiate(coin, (rigidbody2D.transform.position.x, rigidbody2D.transform.position.y), Quaternion.identity) as GameObject).transform)
+            Instantiate(coin, new Vector2(rigidbody2D.transform.position.x, rigidbody2D.transform.position.y), Quaternion.identity);
             Destroy(gameObject);
+            
         }
 	
 	}
@@ -48,11 +56,16 @@ public class EnemyController : MonoBehaviour {
         transform.localScale = theScale;
     }
 
+    
+
     void OnTriggerEnter2D (Collider2D col) 
     {
-        if (col.tag == "fistPunch")
+        if (col.tag == "fistPunch" && canBeHit)
         {
             Debug.Log("hit");
+            
+            moveEnemy.x *= speed;
+            rigidbody2D.velocity = moveEnemy;
             health -= 50;
         }
     }
