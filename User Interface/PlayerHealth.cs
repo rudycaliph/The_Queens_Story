@@ -29,6 +29,9 @@ public class PlayerHealth : MonoBehaviour 	{
 
 		texture2 = new Texture2D(1, 1);
 		texture2.SetPixel(1, 1, greenColor);
+
+		healthBarLength = (float)(Screen.width / 2.0);
+		staminaBarLength = (float)(Screen.width / 2.0);
 	}
 	
 	private void Update()
@@ -68,11 +71,12 @@ public class PlayerHealth : MonoBehaviour 	{
 		texture.Apply();
 
 		style.normal.background = texture;
-		GUI.Box(new Rect(10, 10,Screen.width / 2 / (maxHealth / curHealth),20), new GUIContent(""), style);
+		GUI.Box(new Rect(10, 10, healthBarLength,20), new GUIContent(""), style);
 
 		texture2.Apply();
+
 		style2.normal.background = texture2;
-		GUI.Box(new Rect(10, 32,Screen.width / 2 / (maxStamina / curStamina),20), new GUIContent(""), style2);
+		GUI.Box(new Rect(10, 32,staminaBarLength, 20), new GUIContent(""), style2);
 	}
 
 	public void AddjustCurrentHealth(int adj)
@@ -88,7 +92,7 @@ public class PlayerHealth : MonoBehaviour 	{
 		if (maxHealth < 1)
 			maxHealth = 1;
 		
-		healthBarLength = (Screen.width / 2)*(curHealth/maxHealth);
+		healthBarLength = (float)(Screen.width / 2.0*curHealth/maxHealth);
 	}
 
 	public void AddjustCurrentStamina(int adj)
@@ -103,6 +107,6 @@ public class PlayerHealth : MonoBehaviour 	{
 		if (maxStamina < 1)
 			maxStamina = 1;
 		
-		staminaBarLength = (Screen.width / 2)*(curStamina/(float)maxStamina);
+		staminaBarLength = (float)(Screen.width / 2.0*curStamina/maxStamina);
 	}
 }
